@@ -1,0 +1,88 @@
+---
+spec_version: "1.0"
+comparison:
+  aggregate_function: "avg"
+  compare_with: "single_result"
+  include_result_with_score: "pass"
+  number_of_comparison_results: 1
+filter:
+objectives:
+  - sli: "response_time"
+    pass:             # pass if (relative change <= 10% AND absolute value is < 600ms)
+      - criteria:
+          - "<=+10%"  # relative values require a prefixed sign (plus or minus)
+          - "<600"    # absolute values only require a logical operator
+    warning:          # if the response time is below 800ms, the result should be a warning
+      - criteria:
+          - "<=800"
+    weight: 3
+  - sli: total_sucess_request
+    pass:
+      - criteria:
+          - ">=0"
+  - sli: total_failing_request
+    pass:
+      - criteria:
+          - "<10"
+          - "<=+80%"
+    warning:
+      - criteria:
+          -  "<7"
+          -  "<=+70%"
+    weight: 2
+  - sli: 4xx_client_errors
+    pass:
+      - criteria:
+          - "<=5"
+    warning:
+      - criteria:
+          - "<=8"
+  - sli: 5xx_server_errors
+    pass:
+      - criteria:
+          - "<=5"
+    warning:
+      - criteria:
+          - "<=8"
+  - sli: node_availability
+    pass:
+      - criteria:
+          - ">0"
+  - sli: response_throughput
+    pass:
+      - criteria:
+          - ">=+80%"
+    warning:
+      - criteria:
+          - ">=+70%"
+  - sli: cpu_overcommit
+    pass:
+      - criteria:
+          - "<=+80%"
+    warning:
+      - criteria:
+          - "<=+70%"
+    weight: 2
+  - sli: memory_overcommit
+    pass:
+      - criteria:
+          - "<=+80%"
+    warning:
+      - criteria:
+          - "<=+70%"
+    weight: 2
+  - sli: latency
+    pass:
+      - criteria:
+          - "<=+10%"
+    warning:
+      - criteria:
+          - "<=+15%"
+    weight: 3
+  - sli: container_restart
+    pass:
+      - criteria:
+          - "<20"
+total_score:
+  pass: "90%"
+  warning: "85%"
