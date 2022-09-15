@@ -1,0 +1,14 @@
+---
+spec_version: '1.0'
+indicators:
+  total_sucess_request: http_requests_total{handler="VersionController.getInformation",job="$SERVICE-$PROJECT-$STAGE-primary",method="GET", status="200"}
+  total_failing_request: http_requests_total{handler="VersionController.getInformation",job="$SERVICE-$PROJECT-$STAGE-primary",method="GET",status!~"2.+"}
+  4xx_client_errors: http_requests_total{handler="VersionController.getInformation",job="$SERVICE-$PROJECT-$STAGE-primary",method="GET",status=~"4.+"}
+  5xx_server_errors: http_requests_total{handler="VersionController.getInformation",job="$SERVICE-$PROJECT-$STAGE-primary",method="GET",status=~"5.+"}
+  response_throughput: sum(rate(http_response_time_milliseconds_sum{job="$SERVICE-$PROJECT-$STAGE-primary",handler="VersionController.getInformation",method="GET",status="200"}[$DURATION_SECONDS]))
+  response_time: histogram_quantile(0.95, sum by(le) (rate(http_response_time_milliseconds_bucket{handler="ItemsController.addToCart",job="$SERVICE-$PROJECT-$STAGE-canary"}[$DURATION_SECONDS])))
+  latency: requests_latency_seconds_sum{job="$SERVICE-$PROJECT-$STAGE-primary"}
+  node_availability: sum(kube_node_status_condition{condition="Ready", status="true"})
+  cpu_overcommit: sum(kube_node_status_capacity{resource="cpu"}) - sum(kube_pod_container_resource_requests{resource="cpu"})
+  memory_overcommit: (sum(kube_node_status_capacity{resource="memory"}) - sum(kube_pod_container_resource_requests{resource="memory"}))/1024/1024/1024
+  container_restart: sum(sum by (namespace)(changes(kube_pod_status_ready{condition="true"}[$DURATION_SECONDS])))
